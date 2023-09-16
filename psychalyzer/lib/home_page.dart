@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'login_page.dart'; // Import the login page where users will be redirected after logout
+import 'login_page.dart';
+import 'questions.dart'; // Import your Question and UserResponse classes
+import 'user_response.dart'; // Import your UserResponse class
+// Import the login page where users will be redirected after logout
 
 class HomePage extends StatefulWidget {
   @override
@@ -8,6 +11,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String? selectedOption;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,12 +28,54 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome to the Home Page!'),
-            // Add your home page content here
-          ],
+        child: ListView.builder(
+          itemCount: questions.length,
+          itemBuilder: (context, index) {
+            final question = questions[index];
+
+            return Card(
+              child: Padding(
+                padding:
+                    const EdgeInsets.all(8.0), // Add padding for better spacing
+                child: Column(
+                  children: [
+                    Text(
+                      question.text,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    for (String option in question.options)
+                      Row(
+                        children: [
+                          Radio(
+                            value: option,
+                            groupValue: selectedOption,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedOption = value;
+                              });
+                            },
+                          ),
+                          Text(option),
+                        ],
+                      ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (selectedOption != null) {
+                          final userResponse =
+                              UserResponse(question, selectedOption!);
+                          addUserResponse(userResponse);
+                        } else {
+                          // Handle case when no option is selected
+                        }
+                      },
+                      child: const Text('Submit'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
